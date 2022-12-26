@@ -33,7 +33,7 @@ class MediaDisplayTest {
             val cacheComicDir: Path = Paths.get(ctx.cacheDir.toString(), "comics", testComicId.toString())
 
             // delete cacheComicDir if it already exists
-            cacheComicDir.toFile().deleteRecursively()
+            ctx.cacheDir.deleteRecursively()
 
             // copy test comic to cache
             for (volumeName in testComicDirectoryList) {
