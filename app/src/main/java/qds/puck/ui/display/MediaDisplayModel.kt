@@ -5,8 +5,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import qds.puck.data.getMediaCachePath
 import java.nio.file.Path
-import java.nio.file.Paths
 import kotlin.io.path.exists
 import kotlin.io.path.listDirectoryEntries
 
@@ -22,12 +22,9 @@ class MediaDisplayModel : ViewModel() {
         mediaId: Int,
         comicDirectoryList: List<String>,
     ): ImageLoadData {
-        val comicCacheDirectoryPath: Path = Paths.get(ctx.cacheDir.toString(), "comics")
-
         // gets the path of an unzipped cbz file
-        val currentDirectory = comicDirectoryList[currentDirectoryIndex]
         val currentDirectoryPath =
-            Paths.get(comicCacheDirectoryPath.toString(), mediaId.toString(), currentDirectory)
+            getMediaCachePath(ctx, mediaId, comicDirectoryList[currentDirectoryIndex])
 
         // checks if the path exists
         if (!currentDirectoryPath.exists()) {

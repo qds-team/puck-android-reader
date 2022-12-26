@@ -12,6 +12,7 @@ import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import qds.puck.data.getMediaCachePath
 import qds.puck.util.copyAssetsToDirectory
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -30,15 +31,13 @@ class MediaDisplayTest {
         @BeforeClass
         @JvmStatic
         fun copyTestComicToCache() {
-            val cacheComicDir: Path = Paths.get(ctx.cacheDir.toString(), "comics", testComicId.toString())
-
-            // delete cacheComicDir if it already exists
+            // delete cache for testing
             ctx.cacheDir.deleteRecursively()
 
             // copy test comic to cache
             for (volumeName in testComicDirectoryList) {
                 val assetDirectory: Path = Paths.get(testComicPath, volumeName)
-                val cacheComicPath: Path = Paths.get(cacheComicDir.toString(), volumeName)
+                val cacheComicPath: Path = getMediaCachePath(ctx, testComicId, volumeName)
                 copyAssetsToDirectory(testCtx, assetDirectory.toString(), cacheComicPath)
             }
         }
