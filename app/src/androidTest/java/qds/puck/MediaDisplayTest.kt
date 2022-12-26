@@ -13,7 +13,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import qds.puck.data.getMediaCachePath
-import qds.puck.util.copyAssetsToDirectory
+import qds.puck.util.copyAssetDirectoryToDirectory
 import java.nio.file.Path
 import java.nio.file.Paths
 
@@ -25,7 +25,6 @@ class MediaDisplayTest {
         private val testCtx: Context = InstrumentationRegistry.getInstrumentation().context
 
         private const val testComicId: Int = 1
-        private val testComicPath: String = Paths.get("test_comics", testComicId.toString()).toString()
         private val testComicDirectoryList: List<String> = (1..3).toList().map { "ch$it" }
 
         @BeforeClass
@@ -36,9 +35,9 @@ class MediaDisplayTest {
 
             // copy test comic to cache
             for (volumeName in testComicDirectoryList) {
-                val assetDirectory: Path = Paths.get(testComicPath, volumeName)
+                val assetDirectory: Path = Paths.get("test_comics", testComicId.toString(), volumeName)
                 val cacheComicPath: Path = getMediaCachePath(ctx, testComicId, volumeName)
-                copyAssetsToDirectory(testCtx, assetDirectory.toString(), cacheComicPath)
+                copyAssetDirectoryToDirectory(testCtx, assetDirectory, cacheComicPath)
             }
         }
     }
