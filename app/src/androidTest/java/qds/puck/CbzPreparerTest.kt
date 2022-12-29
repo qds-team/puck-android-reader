@@ -22,7 +22,7 @@ class CbzPreparerTest {
         private val ctx: Context = InstrumentationRegistry.getInstrumentation().targetContext
         private val testCtx: Context = InstrumentationRegistry.getInstrumentation().context
 
-        private const val testComicId: Int = 1
+        private const val testComicId: Int = 0
         private const val testCbzFilename = "ch1.cbz"
 
         @BeforeClass

@@ -17,17 +17,10 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.name
 
 @Composable
-fun MediaDisplay(
-    mediaId: Int, // the id of the comic
-    comicDirectoryList: List<String> // list of files in a comic directory (i.e [ch1.cbz, ch2.cbz, etc])
-) {
+fun MediaDisplay() {
     val mediaDisplayModel: MediaDisplayModel = viewModel()
 
-    mediaDisplayModel.fetchAndLoadImage(
-        androidx.compose.ui.platform.LocalContext.current,
-        mediaId,
-        comicDirectoryList
-    )
+    mediaDisplayModel.fetchAndLoadImage(androidx.compose.ui.platform.LocalContext.current)
 
     if (mediaDisplayModel.imageLoadData != null) {
         val imgBitmap: Bitmap = BitmapFactory.decodeFile(mediaDisplayModel.imageLoadData!!.imgPath.absolutePathString())
@@ -43,7 +36,7 @@ fun MediaDisplay(
                 modifier = Modifier.height(24.dp)
             ) {
                 Text(
-                    text = "${mediaDisplayModel.currentPageIndex + 1} / ${mediaDisplayModel.imageLoadData!!.currentDirectorySize}",
+                    text = "${mediaDisplayModel.currentPageIndex + 1} / ${mediaDisplayModel.imageLoadData!!.currentCbzSize}",
                     modifier = Modifier.testTag("pageCount")
                 )
             }
