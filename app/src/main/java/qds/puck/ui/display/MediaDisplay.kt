@@ -20,8 +20,6 @@ import kotlin.io.path.name
 fun MediaDisplay() {
     val mediaDisplayModel: MediaDisplayModel = viewModel()
 
-    mediaDisplayModel.fetchAndLoadImage(androidx.compose.ui.platform.LocalContext.current)
-
     if (mediaDisplayModel.imageLoadData != null) {
         val imgBitmap: Bitmap = BitmapFactory.decodeFile(mediaDisplayModel.imageLoadData!!.imgPath.absolutePathString())
         Column {

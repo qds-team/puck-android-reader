@@ -8,6 +8,9 @@ import org.junit.Assert.*
 import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
+import qds.puck.api.MockPuckApi
+import qds.puck.api.testComicFileList
+import qds.puck.api.testComicId
 import qds.puck.data.getMediaCachePath
 import qds.puck.data.withoutExtension
 import qds.puck.ui.display.MediaDisplayModel
@@ -21,9 +24,7 @@ class MediaDisplayModelTest {
     companion object {
         private val ctx: Context = InstrumentationRegistry.getInstrumentation().targetContext
         private val testCtx: Context = InstrumentationRegistry.getInstrumentation().context
-
-        private const val testComicId: Int = 0
-        private val testComicFileList: List<String> = (1..3).toList().map { "ch$it.cbz" }
+        private val mockPuckApi = MockPuckApi()
 
         @BeforeClass
         @JvmStatic
@@ -43,16 +44,14 @@ class MediaDisplayModelTest {
     @Test
     fun mediaDisplayModel_getsCorrectImage() = runBlocking {
         val mediaDisplayModel = MediaDisplayModel()
-        mediaDisplayModel.comicFileList = testComicFileList
-        mediaDisplayModel.fetchAndLoadImage(ctx).join()
+        mediaDisplayModel.setCurrentMediaItem(ctx, mockPuckApi, testComicId).join()
         assertEquals(getMediaCachePath(ctx, testComicId, "ch1", "p1.png"), mediaDisplayModel.imageLoadData!!.imgPath)
     }
 
     @Test
     fun mediaDisplayModel_hasCorrectPageCount() = runBlocking {
         val mediaDisplayModel = MediaDisplayModel()
-        mediaDisplayModel.comicFileList = testComicFileList
-        mediaDisplayModel.fetchAndLoadImage(ctx).join()
+        mediaDisplayModel.setCurrentMediaItem(ctx, mockPuckApi, testComicId).join()
         assertEquals(3, mediaDisplayModel.imageLoadData!!.currentCbzSize)
     }
 

@@ -9,9 +9,8 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 
-var puckApi: PuckApi? = null
-fun createApi(serverAddress: String) {
-    puckApi = Retrofit.Builder()
+fun createApi(serverAddress: String): PuckApi {
+    return Retrofit.Builder()
         .baseUrl(serverAddress)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
