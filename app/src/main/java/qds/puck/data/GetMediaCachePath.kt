@@ -11,3 +11,7 @@ fun getMediaCachePath(
 ): Path {
     return Paths.get(ctx.cacheDir.toString(), "media", mediaId.toString(), *subPath)
 }
+
+fun String.withoutExtension(): String {
+    return this.substring(0, this.indexOf('.'))
+}

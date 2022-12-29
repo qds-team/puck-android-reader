@@ -12,7 +12,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
-import qds.puck.ui.display.ImageLoadData
 import qds.puck.ui.display.MediaDisplayModel
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.name
@@ -24,28 +23,30 @@ fun MediaDisplay(
 ) {
     val mediaDisplayModel: MediaDisplayModel = viewModel()
 
-
-    val imgLoadData: ImageLoadData = mediaDisplayModel.fetchAndLoadImage(
+    mediaDisplayModel.fetchAndLoadImage(
         androidx.compose.ui.platform.LocalContext.current,
         mediaId,
         comicDirectoryList
     )
-    val imgBitmap: Bitmap = BitmapFactory.decodeFile(imgLoadData.imgPath.absolutePathString())
-    Column {
-        Image(
-            painter = rememberAsyncImagePainter(imgBitmap),
-            contentDescription = "Page ${mediaDisplayModel.currentPageIndex + 1}",
-            modifier = Modifier
-                .testTag("mediaDisplay_${imgLoadData.imgPath.name}")
-        )
-        Row(
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            modifier = Modifier.height(24.dp)
-        ) {
-            Text(
-                text = "${mediaDisplayModel.currentPageIndex + 1} / ${imgLoadData.currentDirectorySize}",
-                modifier = Modifier.testTag("pageCount")
+
+    if (mediaDisplayModel.imageLoadData != null) {
+        val imgBitmap: Bitmap = BitmapFactory.decodeFile(mediaDisplayModel.imageLoadData!!.imgPath.absolutePathString())
+        Column {
+            Image(
+                painter = rememberAsyncImagePainter(imgBitmap),
+                contentDescription = "Page ${mediaDisplayModel.currentPageIndex + 1}",
+                modifier = Modifier
+                    .testTag("mediaDisplay_${mediaDisplayModel.imageLoadData!!.imgPath.name}")
             )
+            Row(
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier.height(24.dp)
+            ) {
+                Text(
+                    text = "${mediaDisplayModel.currentPageIndex + 1} / ${mediaDisplayModel.imageLoadData!!.currentDirectorySize}",
+                    modifier = Modifier.testTag("pageCount")
+                )
+            }
         }
     }
 }

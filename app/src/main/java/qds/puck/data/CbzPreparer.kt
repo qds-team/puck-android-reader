@@ -8,16 +8,15 @@ import java.nio.file.Paths
 import java.util.zip.ZipInputStream
 import kotlin.io.path.createDirectories
 import kotlin.io.path.isDirectory
-import kotlin.io.path.name
+import kotlin.io.path.nameWithoutExtension
 
 fun unzipCbzToCache(ctx: Context, mediaId: Int, cbzPath: Path) {
     // determine location in cache to store the unzipped file
-    val cbzName = cbzPath.name.substring(0, cbzPath.name.indexOf('.'))
-    val unzippedDataDirectory = getMediaCachePath(ctx, mediaId, cbzName)
+    val unzippedDataDirectory = getMediaCachePath(ctx, mediaId, cbzPath.nameWithoutExtension)
 
     // unzip the file
-    val buffer = ByteArray(16384)
     ZipInputStream(FileInputStream(cbzPath.toFile())).use {
+        val buffer = ByteArray(16384)
         while (true) {
             val zipEntry = it.nextEntry ?: break
             val newFilePath: Path = Paths.get(unzippedDataDirectory.toString(), zipEntry.name)
