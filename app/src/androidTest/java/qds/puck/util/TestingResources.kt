@@ -5,6 +5,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import qds.puck.api.MockPuckApi
 
 val mockPuckApi = MockPuckApi()
+val ctx: Context = InstrumentationRegistry.getInstrumentation().targetContext
 val testCtx: Context = InstrumentationRegistry.getInstrumentation().context
 
 const val testComicId: Int = 0

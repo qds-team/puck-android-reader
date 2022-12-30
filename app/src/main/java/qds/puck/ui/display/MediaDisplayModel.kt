@@ -32,19 +32,20 @@ class MediaDisplayModel : ViewModel() {
     var currentPageIndex: Int by mutableStateOf(0)
         private set
 
-    var imageLoadData: ImageLoadData? by mutableStateOf(null)
+    var currentImagePath: Path? by mutableStateOf(null)
         private set
 
 
     /* utility properties/getters */
-    private val currentCbzName
+    private val currentCbzName: String
         get() = comicFileList[currentCbzIndex]
 
-    private fun getCurrentCbzDirectory(ctx: Context) =
+    private fun getCurrentCbzDirectory(ctx: Context): Path =
         getMediaCachePath(ctx, mediaId, currentCbzName.withoutExtension())
 
-    private fun getCurrentCbzPath(ctx: Context) = getMediaCachePath(ctx, mediaId, currentCbzName)
+    private fun getCurrentCbzPath(ctx: Context): Path = getMediaCachePath(ctx, mediaId, currentCbzName)
 
+    fun getCurrentCbzSize(ctx: Context): Int = getCurrentCbzDirectory(ctx).listDirectoryEntries().size
 
     /* functions */
     fun setCurrentMediaItem(ctx: Context, puckApi: PuckApi, newId: Int) = viewModelScope.launch {
@@ -60,27 +61,34 @@ class MediaDisplayModel : ViewModel() {
     }
 
     fun changeCurrentPageIndex(ctx: Context, puckApi: PuckApi, pageAmount: Int) = viewModelScope.launch {
-        // change currentPageIndex and currentCbzIndex
-        if (imageLoadData != null) {
-            currentPageIndex += pageAmount
-            if (currentPageIndex < 0) {
-                currentCbzIndex--
-                currentPageIndex = 0
-                fetchCurrentDirectoryIfNotCached(ctx, puckApi)
-            } else if (currentPageIndex >= imageLoadData!!.currentCbzSize) {
-                currentCbzIndex++
-                currentPageIndex = 0
-                fetchCurrentDirectoryIfNotCached(ctx, puckApi)
+        fun ensureCurrentCbzIndexIsInBounds() {
+            if (currentCbzIndex < 0 || currentCbzIndex >= comicFileList.size) {
+                currentCbzIndex %= comicFileList.size
+                if (currentCbzIndex < 0) {
+                    currentCbzIndex += comicFileList.size
+                }
             }
         }
 
-        // check if currentCbzIndex is out of bounds
-        if (currentCbzIndex < 0 || currentCbzIndex >= comicFileList.size) {
-            currentCbzIndex %= comicFileList.size
-        }
+        // change currentPageIndex and currentCbzIndex
+        if (currentImagePath != null) {
+            currentPageIndex += pageAmount
+            // change currentCbzIndex if currentPageIndex is out of bounds
+            if (currentPageIndex < 0) {
+                currentCbzIndex--
+                ensureCurrentCbzIndexIsInBounds()
+                fetchCurrentDirectoryIfNotCached(ctx, puckApi)
+                currentPageIndex = getCurrentCbzSize(ctx) - 1
+            } else if (currentPageIndex >= getCurrentCbzSize(ctx)) {
+                currentCbzIndex++
+                ensureCurrentCbzIndexIsInBounds()
+                fetchCurrentDirectoryIfNotCached(ctx, puckApi)
+                currentPageIndex = 0
+            }
 
-        // load current image
-        loadCurrentImage(ctx)
+            // load current image
+            loadCurrentImage(ctx)
+        }
     }
 
     private suspend fun fetchCurrentDirectoryIfNotCached(ctx: Context, puckApi: PuckApi) {
@@ -105,12 +113,7 @@ class MediaDisplayModel : ViewModel() {
     private fun loadCurrentImage(ctx: Context) {
         val currentDirectoryImgPaths: List<Path> = getCurrentCbzDirectory(ctx).listDirectoryEntries()
         val imgPath: Path = currentDirectoryImgPaths[currentPageIndex]
-        imageLoadData = ImageLoadData(imgPath, currentDirectoryImgPaths.size)
+        currentImagePath = imgPath
     }
 
 }
-
-data class ImageLoadData(
-    val imgPath: Path,
-    val currentCbzSize: Int
-)
