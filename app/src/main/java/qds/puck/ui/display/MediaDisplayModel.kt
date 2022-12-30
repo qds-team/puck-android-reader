@@ -14,6 +14,8 @@ import qds.puck.data.unzipCbzToCache
 import qds.puck.data.withoutExtension
 import java.io.FileOutputStream
 import java.nio.file.Path
+import kotlin.io.path.createDirectories
+import kotlin.io.path.createFile
 import kotlin.io.path.exists
 import kotlin.io.path.listDirectoryEntries
 
@@ -82,11 +84,13 @@ class MediaDisplayModel : ViewModel() {
     }
 
     private suspend fun fetchCurrentDirectoryIfNotCached(ctx: Context, puckApi: PuckApi) {
-        // checks if the directory exists
+        // checks if the directory exists. if it doesn't, make a network call to fetch the appropriate cbz and unzip it
         if (!getCurrentCbzDirectory(ctx).exists()) {
-            // if it doesn't, make a network call to fetch the appropriate cbz and unzip it
             puckApi.getMediaFile(mediaId, currentCbzName).body()!!.byteStream().use { bs ->
-                FileOutputStream(getCurrentCbzPath(ctx).toFile()).use { fos ->
+                val writeFile = getCurrentCbzPath(ctx)
+                writeFile.parent.createDirectories()
+                writeFile.createFile()
+                FileOutputStream(writeFile.toFile()).use { fos ->
                     val buffer = ByteArray(16384)
                     var len: Int
                     while (bs.read(buffer).also { len = it } > 0) {

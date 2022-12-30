@@ -10,6 +10,7 @@ import org.junit.runner.RunWith
 import qds.puck.data.getMediaCachePath
 import qds.puck.data.unzipCbzToCache
 import qds.puck.util.copyAssetToDirectory
+import qds.puck.util.testCtx
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.listDirectoryEntries
@@ -20,7 +21,6 @@ class CbzPreparerTest {
 
     companion object {
         private val ctx: Context = InstrumentationRegistry.getInstrumentation().targetContext
-        private val testCtx: Context = InstrumentationRegistry.getInstrumentation().context
 
         private const val testComicId: Int = 0
         private const val testCbzFilename = "ch1.cbz"
@@ -32,7 +32,7 @@ class CbzPreparerTest {
             ctx.cacheDir.deleteRecursively()
 
             // copy test cbz to cache
-            val assetCbzPath: Path = Paths.get("test_comics", testCbzFilename)
+            val assetCbzPath: Path = Paths.get("test_comics", testComicId.toString(), testCbzFilename)
             val cacheCbzPath: Path = getMediaCachePath(ctx, testComicId, testCbzFilename)
             copyAssetToDirectory(testCtx, assetCbzPath, cacheCbzPath)
         }

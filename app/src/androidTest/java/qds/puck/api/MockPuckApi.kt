@@ -1,10 +1,11 @@
 package qds.puck.api
 
 import okhttp3.ResponseBody
+import okhttp3.ResponseBody.Companion.toResponseBody
+import qds.puck.util.testComicFileList
+import qds.puck.util.testCtx
 import retrofit2.Response
-
-const val testComicId: Int = 0
-val testComicFileList: List<String> = (1..3).toList().map { "ch$it.cbz" }
+import java.nio.file.Paths
 
 class MockPuckApi : PuckApi {
 
@@ -21,7 +22,11 @@ class MockPuckApi : PuckApi {
     }
 
     override suspend fun getMediaFile(id: Int, file: String): Response<ResponseBody> {
-        TODO("Not yet implemented")
+        val assetPath = Paths.get("test_comics", id.toString(), file)
+        testCtx.assets.open(assetPath.toString()).use {
+            val responseBody = it.readBytes().toResponseBody()
+            return Response.success(responseBody)
+        }
     }
 
 }
