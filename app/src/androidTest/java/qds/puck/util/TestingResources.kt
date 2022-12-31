@@ -10,3 +10,6 @@ val testCtx: Context = InstrumentationRegistry.getInstrumentation().context
 
 const val testComicId: Int = 0
 val testComicFileList: List<String> = (1..3).toList().map { "ch$it.cbz" }
+
+const val testPassword: String = "pw123"
+const val testAuthToken: String = "abcd1234"

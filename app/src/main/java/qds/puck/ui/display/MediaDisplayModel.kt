@@ -2,7 +2,6 @@ package qds.puck.ui.display
 
 import android.content.Context
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -23,13 +22,13 @@ class MediaDisplayModel : ViewModel() {
 
     /* state */
     // the id of the comic
-    private var mediaId: Int by mutableStateOf(0)
+    private var mediaId: Int = 0
 
     // list of files in a comic directory (i.e [ch1.cbz, ch2.cbz, ch3.cbz])
-    private var comicFileList: List<String> = mutableStateListOf()
+    private var comicFileList: List<String> = listOf()
 
-    private var currentCbzIndex: Int by mutableStateOf(0)
-    var currentPageIndex: Int by mutableStateOf(0)
+    private var currentCbzIndex: Int = 0
+    var currentPageIndex: Int = 0
         private set
 
     var currentImagePath: Path? by mutableStateOf(null)
@@ -47,8 +46,9 @@ class MediaDisplayModel : ViewModel() {
 
     fun getCurrentCbzSize(ctx: Context): Int = getCurrentCbzDirectory(ctx).listDirectoryEntries().size
 
+
     /* functions */
-    fun setCurrentMediaItem(ctx: Context, puckApi: PuckApi, newId: Int) = viewModelScope.launch {
+    fun setCurrentMediaItem(puckApi: PuckApi, ctx: Context, newId: Int) = viewModelScope.launch {
         mediaId = newId
         val response = puckApi.getMediaFileList(mediaId)
         if (response.isSuccessful) {
@@ -56,11 +56,11 @@ class MediaDisplayModel : ViewModel() {
         }
         currentCbzIndex = 0
         currentPageIndex = 0
-        fetchCurrentDirectoryIfNotCached(ctx, puckApi)
+        fetchCurrentDirectoryIfNotCached(puckApi, ctx)
         loadCurrentImage(ctx)
     }
 
-    fun changeCurrentPageIndex(ctx: Context, puckApi: PuckApi, pageAmount: Int) = viewModelScope.launch {
+    fun changeCurrentPageIndex(puckApi: PuckApi, ctx: Context, pageAmount: Int) = viewModelScope.launch {
         fun ensureCurrentCbzIndexIsInBounds() {
             if (currentCbzIndex < 0 || currentCbzIndex >= comicFileList.size) {
                 currentCbzIndex %= comicFileList.size
@@ -77,12 +77,12 @@ class MediaDisplayModel : ViewModel() {
             if (currentPageIndex < 0) {
                 currentCbzIndex--
                 ensureCurrentCbzIndexIsInBounds()
-                fetchCurrentDirectoryIfNotCached(ctx, puckApi)
+                fetchCurrentDirectoryIfNotCached(puckApi, ctx)
                 currentPageIndex = getCurrentCbzSize(ctx) - 1
             } else if (currentPageIndex >= getCurrentCbzSize(ctx)) {
                 currentCbzIndex++
                 ensureCurrentCbzIndexIsInBounds()
-                fetchCurrentDirectoryIfNotCached(ctx, puckApi)
+                fetchCurrentDirectoryIfNotCached(puckApi, ctx)
                 currentPageIndex = 0
             }
 
@@ -91,7 +91,7 @@ class MediaDisplayModel : ViewModel() {
         }
     }
 
-    private suspend fun fetchCurrentDirectoryIfNotCached(ctx: Context, puckApi: PuckApi) {
+    private suspend fun fetchCurrentDirectoryIfNotCached(puckApi: PuckApi, ctx: Context) {
         // checks if the directory exists. if it doesn't, make a network call to fetch the appropriate cbz and unzip it
         if (!getCurrentCbzDirectory(ctx).exists()) {
             puckApi.getMediaFile(mediaId, currentCbzName).body()!!.byteStream().use { bs ->

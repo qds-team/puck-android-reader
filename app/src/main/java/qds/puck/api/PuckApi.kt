@@ -22,7 +22,7 @@ interface PuckApi {
     @POST("/login")
     suspend fun postLogin(
         @Body password: String
-    )
+    ): Response<String>
 
     @GET("/media")
     suspend fun getMediaItemList(): Response<List<MediaItem>>
