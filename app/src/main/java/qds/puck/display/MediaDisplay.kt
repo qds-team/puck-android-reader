@@ -1,4 +1,4 @@
-package qds.puck.ui.display
+package qds.puck.display
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory

@@ -1,4 +1,4 @@
-package qds.puck.ui.display
+package qds.puck.display
 
 import android.content.Context
 import androidx.compose.runtime.getValue

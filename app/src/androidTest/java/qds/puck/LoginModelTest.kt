@@ -5,7 +5,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
-import qds.puck.ui.login.LoginModel
+import qds.puck.login.LoginModel
 import qds.puck.util.ctx
 import qds.puck.util.mockPuckApi
 import qds.puck.util.testAuthToken

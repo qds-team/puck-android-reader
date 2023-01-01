@@ -9,7 +9,7 @@ import org.junit.runner.RunWith
 import qds.puck.api.*
 import qds.puck.data.getMediaCachePath
 import qds.puck.data.withoutExtension
-import qds.puck.ui.display.MediaDisplayModel
+import qds.puck.display.MediaDisplayModel
 import qds.puck.util.*
 import java.nio.file.Path
 import java.nio.file.Paths

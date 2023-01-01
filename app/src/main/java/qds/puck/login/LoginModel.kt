@@ -1,4 +1,4 @@
-package qds.puck.ui.login
+package qds.puck.login
 
 import android.content.Context
 import androidx.compose.runtime.getValue

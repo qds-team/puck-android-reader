@@ -1,4 +1,4 @@
-package qds.puck.ui.login
+package qds.puck.login
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Button
