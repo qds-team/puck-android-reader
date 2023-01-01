@@ -22,7 +22,8 @@ class LoginModel : ViewModel() {
 
     /* managing login */
     fun login(ctx: Context, serverAddress: String, password: String) = viewModelScope.launch {
-        puckApi = createApi("https://$serverAddress$serverAddressPort")
+        val accessToken: String? = getSessionPrefs(ctx).getString(prefAccessTokenKey, null)
+        puckApi = createApi("https://$serverAddress$serverAddressPort", accessToken)
         fetchAndWriteAuthToken(puckApi!!, ctx, password)
     }
 
@@ -38,7 +39,6 @@ class LoginModel : ViewModel() {
         // TODO: tell server to log out & forget token
     }
 
-
     /* managing auth token */
     suspend fun fetchAndWriteAuthToken(puckApi: PuckApi, ctx: Context, password: String) {
         val response = puckApi.postLogin(password)
@@ -51,10 +51,6 @@ class LoginModel : ViewModel() {
                 commit()
             }
         }
-    }
-
-    fun getAccessToken(ctx: Context): String? {
-        return getSessionPrefs(ctx).getString(prefAccessTokenKey, null)
     }
 
     private fun getSessionPrefs(ctx: Context): SharedPreferences =

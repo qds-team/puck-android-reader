@@ -1,5 +1,6 @@
 package qds.puck.api
 
+import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -9,8 +10,11 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 
-fun createApi(serverAddress: String): PuckApi {
-    return Retrofit.Builder()
+fun createApi(serverAddress: String, accessToken: String?): PuckApi {
+    val httpClientBuilder = OkHttpClient.Builder()
+        .addInterceptor(AuthInterceptor(accessToken))
+
+    return Retrofit.Builder().client(httpClientBuilder.build())
         .baseUrl(serverAddress)
         .addConverterFactory(GsonConverterFactory.create())
         .build()

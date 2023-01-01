@@ -1,12 +1,14 @@
 package qds.puck
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import qds.puck.config.prefAccessTokenKey
 import qds.puck.login.LoginModel
 import qds.puck.util.ctx
 import qds.puck.util.mockPuckApi
@@ -18,7 +20,7 @@ class LoginModelTest {
 
     @Before
     fun clearSessionPrefs() {
-        with(ctx.getSharedPreferences("session", Context.MODE_PRIVATE).edit()) {
+        with(getSessionPrefs(ctx).edit()) {
             clear()
             commit()
         }
@@ -26,15 +28,21 @@ class LoginModelTest {
 
     @Test
     fun loginModel_accessTokenNullByDefault() = runBlocking {
-        val loginModel = LoginModel()
-        assertEquals(null, loginModel.getAccessToken(ctx))
+        assertEquals(null, getAccessToken())
     }
 
     @Test
     fun loginModel_savesAccessToken() = runBlocking {
         val loginModel = LoginModel()
         loginModel.fetchAndWriteAuthToken(mockPuckApi, ctx, testPassword)
-        assertEquals(testAuthToken, loginModel.getAccessToken(ctx))
+        assertEquals(testAuthToken, getAccessToken())
     }
+
+    private fun getAccessToken(): String? {
+        return getSessionPrefs(ctx).getString(prefAccessTokenKey, null)
+    }
+
+    private fun getSessionPrefs(ctx: Context): SharedPreferences =
+        ctx.getSharedPreferences("session", Context.MODE_PRIVATE)
 
 }
