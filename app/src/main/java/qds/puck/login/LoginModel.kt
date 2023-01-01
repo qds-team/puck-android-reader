@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 import qds.puck.api.PuckApi
 import qds.puck.api.createApi
 import qds.puck.config.prefAccessTokenKey
+import qds.puck.config.prefServerAddressKey
 import qds.puck.config.serverAddressPort
 
 class LoginModel : ViewModel() {
@@ -22,15 +23,38 @@ class LoginModel : ViewModel() {
 
     /* managing login */
     fun login(ctx: Context, serverAddress: String, password: String) = viewModelScope.launch {
+        setPuckApi(serverAddress) { getAccessToken(ctx) }
+
+        val response = puckApi!!.postLogin(password)
+        if (response.isSuccessful) {
+            // save serverAddress to preferences
+            with(getSessionPrefs(ctx).edit()) {
+                putString(prefServerAddressKey, serverAddress)
+                commit()
+            }
+
+            // save token to preferences
+            with(getSessionPrefs(ctx).edit()) {
+                val accessToken: String = response.body()!!
+                putString(prefAccessTokenKey, accessToken)
+                commit()
+            }
+        }
+    }
+
+    fun setPuckApiFromPrefs(ctx: Context) {
+        val serverAddress: String? = getSessionPrefs(ctx).getString(prefServerAddressKey, null)
         val accessToken: String? = getSessionPrefs(ctx).getString(prefAccessTokenKey, null)
-        puckApi = createApi("https://$serverAddress$serverAddressPort", accessToken)
-        fetchAndWriteAuthToken(puckApi!!, ctx, password)
+
+        if (serverAddress != null && accessToken != null) {
+            setPuckApi(serverAddress) { getAccessToken(ctx) }
+        }
     }
 
     fun logout(ctx: Context) {
         puckApi = null
 
-        // delete token from file system
+        // delete token from preferences
         with(getSessionPrefs(ctx).edit()) {
             remove(prefAccessTokenKey)
             commit()
@@ -39,19 +63,12 @@ class LoginModel : ViewModel() {
         // TODO: tell server to log out & forget token
     }
 
-    /* managing auth token */
-    suspend fun fetchAndWriteAuthToken(puckApi: PuckApi, ctx: Context, password: String) {
-        val response = puckApi.postLogin(password)
-        if (response.isSuccessful) {
-            val accessToken: String = response.body()!!
-
-            // save token to file system
-            with(getSessionPrefs(ctx).edit()) {
-                putString(prefAccessTokenKey, accessToken)
-                commit()
-            }
-        }
+    private fun setPuckApi(serverAddress: String, getAccessToken: () -> String?) {
+        puckApi = createApi("https://$serverAddress$serverAddressPort", getAccessToken)
     }
+
+    /* preferences */
+    private fun getAccessToken(ctx: Context) = getSessionPrefs(ctx).getString(prefAccessTokenKey, null)
 
     private fun getSessionPrefs(ctx: Context): SharedPreferences =
         ctx.getSharedPreferences("session", Context.MODE_PRIVATE)

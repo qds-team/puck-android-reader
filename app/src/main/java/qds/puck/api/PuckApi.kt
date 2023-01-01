@@ -10,9 +10,9 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 
-fun createApi(serverAddress: String, accessToken: String?): PuckApi {
+fun createApi(serverAddress: String, getAccessToken: () -> String?): PuckApi {
     val httpClientBuilder = OkHttpClient.Builder()
-        .addInterceptor(AuthInterceptor(accessToken))
+        .addInterceptor(AuthInterceptor(getAccessToken))
 
     return Retrofit.Builder().client(httpClientBuilder.build())
         .baseUrl(serverAddress)
