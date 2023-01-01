@@ -1,23 +1,17 @@
 package qds.puck.login
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import qds.puck.api.PuckApi
 import qds.puck.api.createApi
+import qds.puck.config.prefAccessTokenKey
 import qds.puck.config.serverAddressPort
-import java.io.FileReader
-import java.io.FileWriter
-import java.nio.file.Path
-import java.nio.file.Paths
-import kotlin.io.path.deleteIfExists
-import kotlin.io.path.exists
 
 class LoginModel : ViewModel() {
 
@@ -36,7 +30,10 @@ class LoginModel : ViewModel() {
         puckApi = null
 
         // delete token from file system
-        getAuthTokenPath(ctx).deleteIfExists()
+        with(getSessionPrefs(ctx).edit()) {
+            remove(prefAccessTokenKey)
+            commit()
+        }
 
         // TODO: tell server to log out & forget token
     }
@@ -49,26 +46,18 @@ class LoginModel : ViewModel() {
             val accessToken: String = response.body()!!
 
             // save token to file system
-            withContext(Dispatchers.IO) {
-                FileWriter(getAuthTokenPath(ctx).toFile()).use {
-                    it.write(accessToken)
-                }
+            with(getSessionPrefs(ctx).edit()) {
+                putString(prefAccessTokenKey, accessToken)
+                commit()
             }
         }
     }
 
-    fun getAuthToken(ctx: Context): String? {
-        val tokenPath = getAuthTokenPath(ctx)
-        if (tokenPath.exists()) {
-            FileReader(tokenPath.toFile()).use {
-                return it.readText()
-            }
-        }
-        return null
+    fun getAccessToken(ctx: Context): String? {
+        return getSessionPrefs(ctx).getString(prefAccessTokenKey, null)
     }
 
-    private fun getAuthTokenPath(ctx: Context): Path {
-        return Paths.get(ctx.filesDir.toString(), "authToken.txt")
-    }
+    private fun getSessionPrefs(ctx: Context): SharedPreferences =
+        ctx.getSharedPreferences("session", Context.MODE_PRIVATE)
 
 }
