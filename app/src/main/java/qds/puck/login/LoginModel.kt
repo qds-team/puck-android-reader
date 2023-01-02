@@ -12,18 +12,21 @@ import qds.puck.api.PuckApi
 import qds.puck.api.createApi
 import qds.puck.config.prefAccessTokenKey
 import qds.puck.config.prefServerAddressKey
-import qds.puck.config.serverAddressPort
 
 class LoginModel : ViewModel() {
 
-    var puckApi: PuckApi? by mutableStateOf(null)
-        private set
+    private var puckApi: PuckApi? by mutableStateOf(null)
     val isLoggedIn: Boolean
         get() = puckApi != null
 
+    var onError: ((String) -> Unit)? = null
+
     /* managing login */
     fun login(ctx: Context, serverAddress: String, password: String) = viewModelScope.launch {
-        setPuckApi(serverAddress) { getAccessToken(ctx) }
+        setPuckApi(serverAddress, { getAccessToken(ctx) }, onError) { logout(ctx) }
+        if (puckApi == null) {
+            return@launch
+        }
 
         val response = puckApi!!.postLogin(password)
         if (response.isSuccessful) {
@@ -47,7 +50,7 @@ class LoginModel : ViewModel() {
         val accessToken: String? = getSessionPrefs(ctx).getString(prefAccessTokenKey, null)
 
         if (serverAddress != null && accessToken != null) {
-            setPuckApi(serverAddress) { getAccessToken(ctx) }
+            setPuckApi(serverAddress, { getAccessToken(ctx) }, onError) { logout(ctx) }
         }
     }
 
@@ -60,11 +63,16 @@ class LoginModel : ViewModel() {
             commit()
         }
 
-        // TODO: tell server to log out & forget token
+        // TODO: call logout endpoint - tell server to log out & forget token
     }
 
-    private fun setPuckApi(serverAddress: String, getAccessToken: () -> String?) {
-        puckApi = createApi("https://$serverAddress$serverAddressPort", getAccessToken)
+    private fun setPuckApi(
+        serverAddress: String,
+        getAccessToken: () -> String?,
+        onError: ((String) -> Unit)?,
+        logout: () -> Unit
+    ) {
+        puckApi = createApi(serverAddress, getAccessToken, onError, logout)
     }
 
     /* preferences */

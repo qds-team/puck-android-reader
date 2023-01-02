@@ -1,28 +1,26 @@
 package qds.puck
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
-import qds.puck.login.LoginModel
+import com.mathroda.snackie.SnackieError
+import com.mathroda.snackie.SnackieState
+import com.mathroda.snackie.rememberSnackieState
+import qds.puck.login.attemptLoginFromPrefs
 import qds.puck.login.LoginScreen
 
 @Composable
 fun App() {
-    AttemptLoginFromPrefs()
-    LoginScreen()
-}
+    attemptLoginFromPrefs()
 
-@Composable
-fun AttemptLoginFromPrefs() {
-    var attemptedFromPrefs by rememberSaveable { mutableStateOf(false) }
-
-    val loginModel = viewModel<LoginModel>()
-    if (!attemptedFromPrefs && !loginModel.isLoggedIn) {
-        loginModel.setPuckApiFromPrefs(LocalContext.current)
-        attemptedFromPrefs = true
+    // error snackbar
+    val snackieState: SnackieState = rememberSnackieState()
+    val onError: (String) -> Unit = { msg: String ->
+        snackieState.addMessage(msg)
     }
+    SnackieError(
+        state = snackieState,
+        duration = 5000L
+    )
+
+    // app
+    LoginScreen(onError)
 }

@@ -2,6 +2,7 @@ package qds.puck.api
 
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
+import qds.puck.config.serverAddressPort
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -10,12 +11,23 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
 
-fun createApi(serverAddress: String, getAccessToken: () -> String?): PuckApi {
+fun createApi(
+    serverAddress: String,
+    getAccessToken: () -> String?,
+    onError: ((String) -> Unit)?,
+    logout: () -> Unit
+): PuckApi? {
+    if (serverAddress == "") {
+        onError?.invoke("Bad server address")
+        return null
+    }
+
     val httpClientBuilder = OkHttpClient.Builder()
         .addInterceptor(AuthInterceptor(getAccessToken))
+        .addInterceptor(ErrorInterceptor(onError, logout))
 
     return Retrofit.Builder().client(httpClientBuilder.build())
-        .baseUrl(serverAddress)
+        .baseUrl("https://$serverAddress:$serverAddressPort")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(PuckApi::class.java)

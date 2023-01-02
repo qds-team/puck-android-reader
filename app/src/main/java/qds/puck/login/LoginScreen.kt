@@ -6,21 +6,28 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.lifecycle.viewmodel.compose.viewModel
 import qds.puck.config.serverAddressPort
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun LoginScreen(modifier: Modifier = Modifier) {
+fun LoginScreen(onError: (String) -> Unit, modifier: Modifier = Modifier) {
 
     val loginModel: LoginModel = viewModel()
     val ctx = LocalContext.current
+    loginModel.onError = onError
 
     var serverAddress: String by remember { mutableStateOf("") }
     var password: String by remember { mutableStateOf("") }
+
+    val keyboardController: SoftwareKeyboardController? = LocalSoftwareKeyboardController.current
 
     Column(
         modifier = modifier,
@@ -50,6 +57,7 @@ fun LoginScreen(modifier: Modifier = Modifier) {
                     loginModel.login(ctx, serverAddress, password)
                     serverAddress = ""
                     password = ""
+                    keyboardController?.hide()
                 }
             ) {
                 Text("Log In")
