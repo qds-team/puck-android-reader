@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
+import qds.puck.api.ErrorMessages
 import qds.puck.api.PuckApi
 import qds.puck.api.createApi
 import qds.puck.config.prefAccessTokenKey
@@ -19,7 +20,8 @@ class LoginModel : ViewModel() {
     val isLoggedIn: Boolean
         get() = puckApi != null
 
-    var onError: ((String) -> Unit)? = null
+    var onError: ((String?) -> Unit)? = null
+    var errorMessages: ErrorMessages? = null
 
     /* managing login */
     fun login(ctx: Context, serverAddress: String, password: String) = viewModelScope.launch {
@@ -69,10 +71,10 @@ class LoginModel : ViewModel() {
     private fun setPuckApi(
         serverAddress: String,
         getAccessToken: () -> String?,
-        onError: ((String) -> Unit)?,
+        onError: ((String?) -> Unit)?,
         logout: () -> Unit
     ) {
-        puckApi = createApi(serverAddress, getAccessToken, onError, logout)
+        puckApi = createApi(serverAddress, getAccessToken, onError, errorMessages, logout)
     }
 
     /* preferences */

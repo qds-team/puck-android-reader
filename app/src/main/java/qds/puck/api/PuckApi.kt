@@ -14,17 +14,18 @@ import retrofit2.http.Path
 fun createApi(
     serverAddress: String,
     getAccessToken: () -> String?,
-    onError: ((String) -> Unit)?,
+    onError: ((String?) -> Unit)?,
+    errorMessages: ErrorMessages?,
     logout: () -> Unit
 ): PuckApi? {
     if (serverAddress == "") {
-        onError?.invoke("Bad server address")
+        onError?.invoke(errorMessages?.badServerAddress)
         return null
     }
 
     val httpClientBuilder = OkHttpClient.Builder()
         .addInterceptor(AuthInterceptor(getAccessToken))
-        .addInterceptor(ErrorInterceptor(onError, logout))
+        .addInterceptor(ErrorInterceptor(onError, errorMessages, logout))
 
     return Retrofit.Builder().client(httpClientBuilder.build())
         .baseUrl("https://$serverAddress:$serverAddressPort")

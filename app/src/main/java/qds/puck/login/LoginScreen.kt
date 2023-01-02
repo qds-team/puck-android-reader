@@ -12,17 +12,21 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.lifecycle.viewmodel.compose.viewModel
+import qds.puck.R
+import qds.puck.api.ErrorMessages
 import qds.puck.config.serverAddressPort
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun LoginScreen(onError: (String) -> Unit, modifier: Modifier = Modifier) {
+fun LoginScreen(onError: (String?) -> Unit, modifier: Modifier = Modifier) {
 
     val loginModel: LoginModel = viewModel()
     val ctx = LocalContext.current
     loginModel.onError = onError
+    loginModel.errorMessages = getErrorMessages()
 
     var serverAddress: String by remember { mutableStateOf("") }
     var password: String by remember { mutableStateOf("") }
@@ -73,3 +77,11 @@ fun LoginScreen(onError: (String) -> Unit, modifier: Modifier = Modifier) {
     }
 
 }
+
+@Composable
+private fun getErrorMessages() = ErrorMessages(
+    error = stringResource(R.string.error),
+    badServerAddress = stringResource(R.string.err_bad_server_address),
+    connectionTimeout = stringResource(R.string.err_connection_timed_out),
+    connectionShutdown = stringResource(R.string.err_connection_shutdown)
+)
