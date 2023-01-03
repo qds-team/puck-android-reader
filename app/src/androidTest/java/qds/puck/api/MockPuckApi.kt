@@ -2,10 +2,7 @@ package qds.puck.api
 
 import okhttp3.ResponseBody
 import okhttp3.ResponseBody.Companion.toResponseBody
-import qds.puck.util.testAuthToken
-import qds.puck.util.testComicFileList
-import qds.puck.util.testCtx
-import qds.puck.util.testPassword
+import qds.puck.util.*
 import retrofit2.Response
 import java.nio.file.Paths
 
@@ -20,7 +17,7 @@ class MockPuckApi : PuckApi {
     }
 
     override suspend fun getMediaItemList(): Response<List<MediaItem>> {
-        TODO("Not yet implemented")
+        return Response.success(testMediaCollection)
     }
 
     override suspend fun getMediaFileList(id: Int): Response<List<String>> {
