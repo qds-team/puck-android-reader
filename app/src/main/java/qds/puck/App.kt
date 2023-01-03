@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import com.mathroda.snackie.SnackieError
 import com.mathroda.snackie.SnackieState
 import com.mathroda.snackie.rememberSnackieState
-import qds.puck.login.LoginScreen
 import qds.puck.login.attemptLoginFromPrefs
+import qds.puck.nav.AppNavManager
 
 @Composable
 fun App() {
@@ -21,6 +21,7 @@ fun App() {
         duration = 5000L
     )
 
-    // app
-    LoginScreen(onError)
+    // app navigation
+    AppNavManager(onError)
+
 }

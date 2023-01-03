@@ -1,6 +1,11 @@
 <resources>
     <string name="app_name">Puck</string>
 
+    <!-- Navigation -->
+    <string name="nav_media_collection">Collection</string>
+    <string name="nav_reader">Reader</string>
+    <string name="nav_login">Login</string>
+
     <!-- Errors -->
     <string name="error">Error</string>
     <string name="err_connection_timed_out">Connection timed out</string>
