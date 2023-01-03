@@ -1,4 +1,4 @@
-package qds.puck.ui.display
+package qds.puck.mediadisplay
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -21,11 +21,13 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.name
 
 @Composable
-fun MediaDisplay(puckApi: PuckApi) {
+fun MediaDisplay(puckApi: PuckApi, modifier: Modifier = Modifier) {
     val mediaDisplayModel: MediaDisplayModel = viewModel()
     val ctx = LocalContext.current
 
-    Column {
+    Column(
+        modifier = modifier
+    ) {
         if (mediaDisplayModel.currentImagePath != null) {
             val imgPath = mediaDisplayModel.currentImagePath!!.absolutePathString()
             val imgBitmap: Bitmap = BitmapFactory.decodeFile(imgPath)
@@ -41,17 +43,17 @@ fun MediaDisplay(puckApi: PuckApi) {
             modifier = Modifier.height(24.dp)
         ) {
             Button(
-                onClick = { mediaDisplayModel.changeCurrentPageIndex(ctx, puckApi, -1) },
+                onClick = { mediaDisplayModel.changeCurrentPageIndex(puckApi, ctx, -1) },
                 modifier = Modifier.testTag("prevPageBtn")
             ) {
                 Text("Left")
             }
             Text(
-                text = "${mediaDisplayModel.currentPageIndex + 1} / ${mediaDisplayModel?.getCurrentCbzSize(ctx) ?: "?"}",
+                text = "${mediaDisplayModel.currentPageIndex + 1} / ${mediaDisplayModel.getCurrentCbzSize(ctx)}",
                 modifier = Modifier.testTag("pageCount")
             )
             Button(
-                onClick = { mediaDisplayModel.changeCurrentPageIndex(ctx, puckApi, 1) },
+                onClick = { mediaDisplayModel.changeCurrentPageIndex(puckApi, ctx, 1) },
                 modifier = Modifier.testTag("nextPageBtn")
             ) {
                 Text("Right")

@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Puck</string>
+
+    <!-- Errors -->
+    <string name="error">Error</string>
+    <string name="err_connection_timed_out">Connection timed out</string>
+    <string name="err_bad_server_address">Bad server address</string>
+    <string name="err_connection_shutdown">Connection shutdown</string>
 </resources>
