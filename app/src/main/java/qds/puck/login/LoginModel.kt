@@ -20,6 +20,8 @@ class LoginModel : ViewModel() {
     val isLoggedIn: Boolean
         get() = puckApi != null
 
+    var displayServerAddress: String? by mutableStateOf(null)
+
     var onError: ((String?) -> Unit)? = null
     var errorMessages: ErrorMessages? = null
 
@@ -32,15 +34,12 @@ class LoginModel : ViewModel() {
 
         val response = puckApi!!.postLogin(password)
         if (response.isSuccessful) {
-            // save serverAddress to preferences
+            displayServerAddress = serverAddress
+
+            // save serverAddress and token to preferences
+            val accessToken: String = response.body()!!
             with(getSessionPrefs(ctx).edit()) {
                 putString(prefServerAddressKey, serverAddress)
-                commit()
-            }
-
-            // save token to preferences
-            with(getSessionPrefs(ctx).edit()) {
-                val accessToken: String = response.body()!!
                 putString(prefAccessTokenKey, accessToken)
                 commit()
             }
@@ -48,19 +47,22 @@ class LoginModel : ViewModel() {
     }
 
     fun setPuckApiFromPrefs(ctx: Context) {
-        val serverAddress: String? = getSessionPrefs(ctx).getString(prefServerAddressKey, null)
-        val accessToken: String? = getSessionPrefs(ctx).getString(prefAccessTokenKey, null)
+        val serverAddress: String? = getServerAddress(ctx)
+        val accessToken: String? = getAccessToken(ctx)
 
         if (serverAddress != null && accessToken != null) {
             setPuckApi(serverAddress, { getAccessToken(ctx) }, onError) { logout(ctx) }
+            displayServerAddress = serverAddress
         }
     }
 
     fun logout(ctx: Context) {
         puckApi = null
+        displayServerAddress = null
 
-        // delete token from preferences
+        // delete server address and token from preferences
         with(getSessionPrefs(ctx).edit()) {
+            remove(prefServerAddressKey)
             remove(prefAccessTokenKey)
             commit()
         }
@@ -75,9 +77,14 @@ class LoginModel : ViewModel() {
         logout: () -> Unit
     ) {
         puckApi = createApi(serverAddress, getAccessToken, onError, errorMessages, logout)
+        if (puckApi == null) {
+            logout()
+        }
     }
 
     /* preferences */
+    private fun getServerAddress(ctx: Context) = getSessionPrefs(ctx).getString(prefServerAddressKey, null)
+
     private fun getAccessToken(ctx: Context) = getSessionPrefs(ctx).getString(prefAccessTokenKey, null)
 
     private fun getSessionPrefs(ctx: Context): SharedPreferences =

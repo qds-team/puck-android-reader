@@ -67,7 +67,14 @@ fun LoginScreen(onError: (String?) -> Unit, modifier: Modifier = Modifier) {
                 Text("Log In")
             }
         } else {
-            Text("Currently logged in")
+            val displayServerAddress: String? = loginModel.displayServerAddress
+            if (displayServerAddress == null) {
+                Text("Logging in...")
+            } else {
+                Text("Currently logged in")
+                Text("Server Address: $displayServerAddress")
+            }
+
             Button(
                 onClick = { loginModel.logout(ctx) }
             ) {
