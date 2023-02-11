@@ -1,6 +1,7 @@
 package qds.puck.login
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -21,7 +22,10 @@ import qds.puck.config.serverAddressPort
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun LoginScreen(onError: (String?) -> Unit, modifier: Modifier = Modifier) {
+fun LoginScreen(
+    onError: (String?) -> Unit,
+    modifier: Modifier = Modifier
+) {
 
     val loginModel: LoginModel = viewModel()
     val ctx = LocalContext.current
@@ -34,10 +38,10 @@ fun LoginScreen(onError: (String?) -> Unit, modifier: Modifier = Modifier) {
     val keyboardController: SoftwareKeyboardController? = LocalSoftwareKeyboardController.current
 
     Column(
-        modifier = modifier,
+        modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (!loginModel.isLoggedIn) {
+        if (!loginModel.isLoggingIn) {
             Text("Login")
             TextField(
                 value = serverAddress,

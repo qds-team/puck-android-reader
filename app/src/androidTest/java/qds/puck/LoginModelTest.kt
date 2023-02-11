@@ -43,7 +43,7 @@ class LoginModelTest {
         val loginModel = LoginModel()
         loginModel.setPuckApiFromPrefs(ctx)
 
-        assert(loginModel.isLoggedIn)
+        assert(loginModel.isLoggingIn)
     }
 
     private fun getAccessToken(): String? {

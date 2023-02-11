@@ -16,9 +16,12 @@ import qds.puck.config.prefServerAddressKey
 
 class LoginModel : ViewModel() {
 
-    private var puckApi: PuckApi? by mutableStateOf(null)
-    val isLoggedIn: Boolean
+    var puckApi: PuckApi? by mutableStateOf(null)
+        private set
+    val isLoggingIn: Boolean
         get() = puckApi != null
+    val isLoggedIn: Boolean
+        get() = puckApi != null && displayServerAddress != null
 
     var displayServerAddress: String? by mutableStateOf(null)
 

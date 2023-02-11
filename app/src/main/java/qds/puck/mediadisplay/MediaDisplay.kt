@@ -21,9 +21,18 @@ import kotlin.io.path.absolutePathString
 import kotlin.io.path.name
 
 @Composable
-fun MediaDisplay(puckApi: PuckApi, modifier: Modifier = Modifier) {
+fun MediaDisplay(
+    puckApi: PuckApi?,
+    navigateTo: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     val mediaDisplayModel: MediaDisplayModel = viewModel()
     val ctx = LocalContext.current
+
+    if (puckApi == null) {
+        navigateTo("login")
+        return
+    }
 
     Column(
         modifier = modifier
